@@ -144,14 +144,26 @@ void Input::AddJoystick(void)
 	joystick_num = SDL_NumJoysticks();
 
 	if (joystick_num > 0) {
-		// allocate joystick pointer buffer
-		joystick = (SDL_Joystick**)SDL_malloc(joystick_num * sizeof(SDL_Joystick*));
-
-		if (joystick != NULL) {
+      // wyatt hack
+      char *joystickselectenv=getenv("XM8_JOYSTICK");
+		if(joystickselectenv && strlen(joystickselectenv)) // if var was set and is non-empty
+        {
+          // only one joystick will be used, as requested
+          joystick_num=1; // this is forced so it cleans up correctly
+          joystick = (SDL_Joystick**)SDL_malloc(sizeof(SDL_Joystick*));
+          joystick[0] = SDL_JoystickOpen(atoi(joystickselectenv)); // hooray for hacks
+        }
+        else
+        {
+          // allocate joystick pointer buffer
+          joystick = (SDL_Joystick**)SDL_malloc(joystick_num * sizeof(SDL_Joystick*));
+          
+          if (joystick != NULL) {
 			// open loop
 			for (loop=0; loop<joystick_num; loop++) {
 				joystick[loop] = SDL_JoystickOpen(loop);
 			}
+          }
 		}
 	}
 }
@@ -1534,7 +1546,24 @@ const Uint32 Input::key_base[0x120] = {
 //
 // joystick button to bit table
 //
-const Uint32 Input::joystick_button[15 * 2] = {
+const Uint32 Input::joystick_button[15 * 2] = { //modded button order for my Logitech gamepad to fit SNES layout style
+	0x00000080, 0x00000000,				// SDL_CONTROLLER_BUTTON_Y
+	0x00000020, 0x00000000,				// SDL_CONTROLLER_BUTTON_B
+	0x00000010, 0x00000000,				// SDL_CONTROLLER_BUTTON_A
+	0x00000040, 0x00000000,				// SDL_CONTROLLER_BUTTON_X
+	0x00000000, 0x00000001,				// SDL_CONTROLLER_BUTTON_BACK
+	0x00000000, 0x00000002,				// SDL_CONTROLLER_BUTTON_GUIDE
+	0x00000000, 0x00000004,				// SDL_CONTROLLER_BUTTON_START
+	0x00000000, 0x00000008,				// SDL_CONTROLLER_BUTTON_LEFTSTICK
+	0x00000000, 0x00000010,				// SDL_CONTROLLER_BUTTON_RIGHTSTICK
+	0x00000000, 0x00000020,				// SDL_CONTROLLER_BUTTON_LEFTSHOULDER
+	0x00000000, 0x00000040,				// SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
+	0x00000001, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_UP
+	0x00000002, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_DOWN
+	0x00000004, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_LEFT
+	0x00000008, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+};
+/*const Uint32 Input::joystick_button[15 * 2] = {
 	0x00000010, 0x00000000,				// SDL_CONTROLLER_BUTTON_A
 	0x00000020, 0x00000000,				// SDL_CONTROLLER_BUTTON_B
 	0x00000040, 0x00000000,				// SDL_CONTROLLER_BUTTON_X
@@ -1550,7 +1579,7 @@ const Uint32 Input::joystick_button[15 * 2] = {
 	0x00000002, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_DOWN
 	0x00000004, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_LEFT
 	0x00000008, 0x00000000,				// SDL_CONTROLLER_BUTTON_DPAD_RIGHT
-};
+};*/
 
 //
 // software keyboard (full key)
