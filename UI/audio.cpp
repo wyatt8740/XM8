@@ -156,9 +156,10 @@ bool Audio::Open(const OpenParam *param)
 
 	// open device
 	name = GetDeviceName(param->device);
-	if (name == NULL) {
-		return false;
-	}
+    /* we _want_ NULL. */
+/*	if (name == NULL) {
+      return false;
+    }*/
 	device_id = SDL_OpenAudioDevice(name, 0, &device_want, &device_spec, 0);
 
 	// result
@@ -227,7 +228,12 @@ int Audio::GetDeviceNum()
 //
 const char* Audio::GetDeviceName(int device)
 {
-	int loop;
+  /* SDL2 handles this nicely without our intervention. */
+  /* the original code here will not work properly if the user's default
+     sound card is not the first enumerated by SDL. NULL lets SDL2 decide. */
+  char *ptr=NULL;
+  return ptr;
+/*	int loop;
 	char *ptr;
 	size_t single_len;
 
@@ -250,7 +256,7 @@ const char* Audio::GetDeviceName(int device)
 		ptr++;
 	}
 
-	return ptr;
+	return ptr;*/
 }
 
 //
